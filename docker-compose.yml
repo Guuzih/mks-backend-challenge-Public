@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: movies-catalog-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: movies-catalog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+
+  redis:
+    container_name: movies-catalog-redis-cache
+    image: redis
+    environment:
+     -  REDIS_USER=redis
+     -  REDIS_PASSWORD=redis
+     -  REDIS_DB=movies-catalog-cache
+    ports:
+      - "6379:6379"  
