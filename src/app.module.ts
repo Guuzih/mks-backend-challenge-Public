@@ -1,18 +1,24 @@
 import { Module} from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DbModule } from './db/db.module';
 import { MoviesModule } from './movies/movies.module';
-import { RedisModule } from 'nestjs-redis';
+import { RedisModule, RedisModuleOptions } from 'nestjs-redis';
 
 
 @Module({
-  imports: [ RedisModule.forRoot({
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT, 10) || 6379, 
-    password: process.env.REDIS_PASSWORD || null, 
-    db: parseInt(process.env.REDIS_DB, 10) || 0, 
+  imports: [ RedisModule.forRootAsync({
+    useFactory: (configService: ConfigService) => {
+      const redisConfig: RedisModuleOptions = {
+        host: configService.get('REDIS_HOST') || 'localhost',
+        port: configService.get<number>('REDIS_PORT') || 6379,
+        password: configService.get('REDIS_PASSWORD') || null,
+        db: configService.get<number>('REDIS_DB') || 0,
+      };
+      return redisConfig;
+    },
+    inject: [ConfigService],
   }),
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
@@ -22,5 +28,6 @@ import { RedisModule } from 'nestjs-redis';
   ],
   controllers: [],
   providers: [],
+  
 })
 export class AppModule {}
